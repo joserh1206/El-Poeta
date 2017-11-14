@@ -12,15 +12,20 @@ namespace ConsoleApp1
             string datasetURL = @"C:\Users\joser\Desktop\ConsoleApp1\ConsoleApp1\all.csv";
             //string poema = File.ReadAllText(datasetURL).Replace(";", "").ToLowerInvariant();
             //string poema = "hola mundo mundo hola soy jose luis";
-            string poema = "sin fotografías\r\nsin planear el viaje\r\nsin contar los días jose\r\n\r\nSintiendo la briza\r\nsin ninguna prisa\r\nsin complicaciones\r\nsin evitar emociones\r\n\r\nSingular y natural\r\nsin obligar ni en forzar\r\nsin pensar mal\r\nsin dejar de tomo y amar".ToLowerInvariant();
+            string poema =
+                "sin fotografías\r\nsin planear el viaje\r\nsin contar los días jose\r\n\r\nSintiendo la briza\r\nsin ninguna prisa\r\nsin complicaciones\r\nsin evitar emociones\r\n\r\nSingular y natural\r\nsin obligar ni en forzar\r\nsin pensar mal\r\nsin dejar de tomo y amar"
+                    .ToLowerInvariant();
             //string poemaMeta = "In the Shreve High football stadium \r\nI think of Polacks nursing long beers in Tiltonsville \r\nAnd gray faces of Negroes in the blast furnace at Benwood \r\nAnd the ruptured night watchman of Wheeling Steel \r\nDreaming of heroes \r\n\r\nAll the proud fathers are ashamed to go home \r\nTheir women cluck like starved pullets \r\nDying for love \r\n\r\nTherefore \r\nTheir sons grow suicidally beautiful \r\nAt the beginning of October \r\nAnd gallop terribly against each other’s bodies";
             string poemaMeta = "hola mundo soy jose y tomo bonitas fotografías en los días soleados";
-            int iteraciones = 50; //Cantidad de generaciones, entre más el poema se va a parecer más
+            //string poemaMeta = "hello world im jose and i take beautiful photos";
+            int iteraciones = 100; //Cantidad de generaciones, entre más el poema se va a parecer más
             N_gram nGram = new N_gram(poema, poemaMeta);
             Dictionary<int, string> dictionary = nGram.GetDictionary();
             int tamanioMeta = poemaMeta.Split(default(string[]), StringSplitOptions.RemoveEmptyEntries).Length;
             Generate_Poem generate = new Generate_Poem();
             string generated = generate.gen(dictionary, tamanioMeta);
+            //Console.WriteLine("GENERADO");
+            //Console.WriteLine(generated);
             for (int i = 0; i < iteraciones; i++)
             {
                 Console.WriteLine("\nGenerated:");
@@ -29,7 +34,9 @@ namespace ConsoleApp1
                 int[] histogramMeta = histogram.getHistogramMeta();
                 int[] histogramGenerated = histogram.getHistogramGenerated();
                 List<string> totalList = histogram.GetTotaList();
-                Distancia_Manhattan distancia = new Distancia_Manhattan(histogramMeta, histogramGenerated);
+                //Distancia_Manhattan distancia = new Distancia_Manhattan(histogramMeta, histogramGenerated);
+                //Distancia_Chebyshev distancia = new Distancia_Chebyshev(histogramMeta, histogramGenerated);
+                Distancia_Inventada distancia = new Distancia_Inventada(histogramMeta, histogramGenerated);
                 List<int> prometedores = distancia.getIndicesPrometedores();
                 //List<int> noPrometedores = distancia.getIndicesNoPrometedores();
                 List<int> cantPrometedores = distancia.getCantPrometedores();
@@ -99,7 +106,6 @@ namespace ConsoleApp1
                 indexT++;
             }
             indexDictionary.Distinct();
-
         }
     }
 
@@ -156,13 +162,13 @@ namespace ConsoleApp1
             for (int i = 0; i < tamanio; i++)
             {
                 int cantP = cantPrometedores[i];
-                Console.WriteLine("\ncantP:");
-                Console.WriteLine(cantP);
+                //Console.WriteLine("\ncantP:");
+                //Console.WriteLine(cantP);
                 for (int j = 0; j < cantP; j++)
                 {
                     newGenList.Add(listaTotal[prometedores[i]]);
-                    Console.WriteLine("\nPrometedor aniadido:");
-                    Console.WriteLine(listaTotal[prometedores[i]]);
+                    //Console.WriteLine("\nPrometedor aniadido:");
+                    //Console.WriteLine(listaTotal[prometedores[i]]);
                 }
             }
             int c = newGenList.Count;
@@ -172,8 +178,11 @@ namespace ConsoleApp1
             {
                 int ranIndex = random.Next(tamanio);
                 string[] cant = dicDictionary[ranIndex].Split(default(string[]), StringSplitOptions.RemoveEmptyEntries);
-                newGenList.Add(dicDictionary[ranIndex]);
-                c += cant.Length;
+                if (newGenList.Contains(dicDictionary[ranIndex]) == false)
+                {
+                    newGenList.Add(dicDictionary[ranIndex]);
+                    c += cant.Length;
+                }
             }
             newGenList = DesordenarLista(newGenList);
             foreach (string s in newGenList)
@@ -242,7 +251,6 @@ namespace ConsoleApp1
             //Console.ReadKey();
         }
 
-        
 
         public int[] getHistogramMeta()
         {
@@ -305,9 +313,7 @@ namespace ConsoleApp1
                         cantPrometedores.Add(d2);
                     }
                 }
-                
             }
-
         }
 
         public List<int> getIndicesPrometedores()
@@ -319,11 +325,161 @@ namespace ConsoleApp1
         {
             return indicesNoPrometedores;
         }
+
         public List<int> getCantPrometedores()
         {
             return cantPrometedores;
         }
     }
 
-}
+    class Distancia_Chebyshev
+    {
+        private int[] metahistogram;
+        private int[] generatedhistogram;
+        private List<int> indicesPrometedores = new List<int>();
+        private List<int> cantPrometedores = new List<int>();
+        private List<int> indicesNoPrometedores = new List<int>();
+        private List<int> distancias = new List<int>();
+        private List<int> ordenList = new List<int>();
+        private List<int> indexList = new List<int>();
+        private int[] orden;
+        private int mayor = 0;
 
+        public Distancia_Chebyshev(int[] metahistogram, int[] generatedhistogram)
+        {
+            this.metahistogram = metahistogram;
+            this.generatedhistogram = generatedhistogram;
+            calcular_Distancia();
+        }
+
+        private void calcular_Distancia()
+        {
+            int tamanio = metahistogram.Length;
+            int distancia = 0;
+            for (int i = 0; i < tamanio; i++)
+            {
+                int d1 = metahistogram[i];
+                int d2 = generatedhistogram[i];
+                int suma = Math.Abs(d1 - d2);
+                //Console.WriteLine(suma);
+                //Console.WriteLine("suma");
+
+                if (suma > distancia)
+                {
+                    distancia = suma;
+                }
+
+                if (suma == 0)
+                {
+                    if (d1 != 0)
+                    {
+                        indicesPrometedores.Add(i);
+                        cantPrometedores.Add(d2);
+                    }
+                }
+                else
+                {
+                    if (d2 == 0)
+                    {
+                        indicesNoPrometedores.Add(i);
+                    }
+                    else if (d2 != 0 && d1 != 0)
+                    {
+                        indicesPrometedores.Add(i);
+                        cantPrometedores.Add(d2);
+                    }
+                }
+            }
+            Console.WriteLine("Distancia:");
+            Console.WriteLine(distancia);
+        }
+
+        public List<int> getIndicesPrometedores()
+        {
+            return indicesPrometedores;
+        }
+
+        public List<int> getIndicesNoPrometedores()
+        {
+            return indicesNoPrometedores;
+        }
+
+        public List<int> getCantPrometedores()
+        {
+            return cantPrometedores;
+        }
+    }
+
+    class Distancia_Inventada
+    {
+        private int[] metahistogram;
+        private int[] generatedhistogram;
+        private List<int> indicesPrometedores = new List<int>();
+        private List<int> cantPrometedores = new List<int>();
+        private List<int> indicesNoPrometedores = new List<int>();
+        private List<int> distancias = new List<int>();
+        private List<int> ordenList = new List<int>();
+        private List<int> indexList = new List<int>();
+        private int[] orden;
+        private int mayor = 0;
+
+        public Distancia_Inventada(int[] metahistogram, int[] generatedhistogram)
+        {
+            this.metahistogram = metahistogram;
+            this.generatedhistogram = generatedhistogram;
+            calcular_Distancia();
+        }
+
+        private void calcular_Distancia()
+        {
+            int tamanio = metahistogram.Length;
+            double distancia = 0;
+            for (int i = 0; i < tamanio; i++)
+            {
+                int d1 = metahistogram[i];
+                int d2 = generatedhistogram[i];
+                double suma = Math.Pow(Math.Abs(d1 * d1 - d2 * d2), 2);
+                //Console.WriteLine(suma);
+                //Console.WriteLine("suma");
+                distancia += suma;
+                if (suma == 0)
+                {
+                    if (d1 != 0)
+                    {
+                        indicesPrometedores.Add(i);
+                        cantPrometedores.Add(d2);
+                    }
+                }
+                else
+                {
+                    if (d2 == 0)
+                    {
+                        indicesNoPrometedores.Add(i);
+                    }
+                    else if (d2 != 0 && d1 != 0)
+                    {
+                        indicesPrometedores.Add(i);
+                        cantPrometedores.Add(d2);
+                    }
+                }
+            }
+            Console.WriteLine("Distancia:");
+            Console.WriteLine(distancia);
+        }
+
+        public List<int> getIndicesPrometedores()
+        {
+            return indicesPrometedores;
+        }
+
+        public List<int> getIndicesNoPrometedores()
+        {
+            return indicesNoPrometedores;
+        }
+
+        public List<int> getCantPrometedores()
+        {
+            return cantPrometedores;
+        }
+    }
+}
