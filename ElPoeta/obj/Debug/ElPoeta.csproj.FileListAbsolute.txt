@@ -1,0 +1,9 @@
+c:\users\nelson\documents\visual studio 2015\Projects\ElPoeta\ElPoeta\bin\Debug\ElPoeta.exe.config
+C:\Users\Nelson\documents\visual studio 2015\Projects\ElPoeta\ElPoeta\bin\Debug\ElPoeta.exe
+C:\Users\Nelson\documents\visual studio 2015\Projects\ElPoeta\ElPoeta\bin\Debug\ElPoeta.pdb
+C:\Users\Nelson\documents\visual studio 2015\Projects\ElPoeta\ElPoeta\obj\Debug\ElPoeta.csprojResolveAssemblyReference.cache
+C:\Users\Nelson\documents\visual studio 2015\Projects\ElPoeta\ElPoeta\obj\Debug\ElPoeta.Form1.resources
+C:\Users\Nelson\documents\visual studio 2015\Projects\ElPoeta\ElPoeta\obj\Debug\ElPoeta.Properties.Resources.resources
+C:\Users\Nelson\documents\visual studio 2015\Projects\ElPoeta\ElPoeta\obj\Debug\ElPoeta.csproj.GenerateResource.Cache
+C:\Users\Nelson\documents\visual studio 2015\Projects\ElPoeta\ElPoeta\obj\Debug\ElPoeta.exe
+C:\Users\Nelson\documents\visual studio 2015\Projects\ElPoeta\ElPoeta\obj\Debug\ElPoeta.pdb
