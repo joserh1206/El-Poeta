@@ -12,9 +12,7 @@ namespace ConsoleApp1
             string datasetURL = @"C:\Users\joser\Desktop\ConsoleApp1\ConsoleApp1\all.csv";
             //string poema = File.ReadAllText(datasetURL).Replace(";", "").ToLowerInvariant();
             //string poema = "hola mundo mundo hola soy jose luis";
-            string poema =
-                "sin fotografías\r\nsin planear el viaje\r\nsin contar los días jose\r\n\r\nSintiendo la briza\r\nsin ninguna prisa\r\nsin complicaciones\r\nsin evitar emociones\r\n\r\nSingular y natural\r\nsin obligar ni en forzar\r\nsin pensar mal\r\nsin dejar de tomo y amar"
-                    .ToLowerInvariant();
+            string poema ="sin fotografías\r\nsin planear el viaje\r\nsin contar los días jose\r\n\r\nSintiendo la briza\r\nsin ninguna prisa\r\nsin complicaciones\r\nsin evitar emociones\r\n\r\nSingular y natural\r\nsin obligar ni en forzar\r\nsin pensar mal\r\nsin dejar de tomo y amar".ToLowerInvariant();
             //string poemaMeta = "In the Shreve High football stadium \r\nI think of Polacks nursing long beers in Tiltonsville \r\nAnd gray faces of Negroes in the blast furnace at Benwood \r\nAnd the ruptured night watchman of Wheeling Steel \r\nDreaming of heroes \r\n\r\nAll the proud fathers are ashamed to go home \r\nTheir women cluck like starved pullets \r\nDying for love \r\n\r\nTherefore \r\nTheir sons grow suicidally beautiful \r\nAt the beginning of October \r\nAnd gallop terribly against each other’s bodies";
             string poemaMeta = "hola mundo soy jose y tomo bonitas fotografías en los días soleados";
             //string poemaMeta = "hello world im jose and i take beautiful photos";
@@ -28,8 +26,8 @@ namespace ConsoleApp1
             //Console.WriteLine(generated);
             for (int i = 0; i < iteraciones; i++)
             {
-                Console.WriteLine("\nGenerated:");
-                Console.WriteLine(generated);
+                //Console.WriteLine("\nGenerated:");
+                //Console.WriteLine(generated);
                 Histogram histogram = new Histogram(poemaMeta, generated, dictionary);
                 int[] histogramMeta = histogram.getHistogramMeta();
                 int[] histogramGenerated = histogram.getHistogramGenerated();
@@ -47,7 +45,7 @@ namespace ConsoleApp1
                 //Console.WriteLine(newPoem);
             }
             Console.WriteLine("\nFinal:");
-            Console.WriteLine(generated);
+            Console.WriteLine(generated.Replace("  ", " "));
 
             Console.ReadKey();
         }
@@ -105,7 +103,6 @@ namespace ConsoleApp1
                 indexDictionary.Add(indexT, ngramTemp);
                 indexT++;
             }
-            indexDictionary.Distinct();
         }
     }
 
@@ -298,22 +295,34 @@ namespace ConsoleApp1
                     if (d1 != 0)
                     {
                         indicesPrometedores.Add(i);
-                        cantPrometedores.Add(d2);
+                        if (d2 >= 2)
+                        {
+                            cantPrometedores.Add(d2 - 1);
+                        }
+                        else
+                        {
+                            cantPrometedores.Add(d2);
+                        }
                     }
                 }
                 else
                 {
-                    if (d2 == 0)
-                    {
-                        indicesNoPrometedores.Add(i);
-                    }
-                    else if (d2 != 0 && d1 != 0)
+                    if (d2 != 0 && d1 != 0)
                     {
                         indicesPrometedores.Add(i);
-                        cantPrometedores.Add(d2);
+                        if (d2 >= 2)
+                        {
+                            cantPrometedores.Add(d2 - 1);
+                        }
+                        else
+                        {
+                            cantPrometedores.Add(d2);
+                        }
                     }
                 }
             }
+            Console.WriteLine("DistanciaM:");
+            Console.WriteLine(distancia);
         }
 
         public List<int> getIndicesPrometedores()
@@ -368,22 +377,9 @@ namespace ConsoleApp1
                 {
                     distancia = suma;
                 }
-
-                if (suma == 0)
-                {
-                    if (d1 != 0)
-                    {
-                        indicesPrometedores.Add(i);
-                        cantPrometedores.Add(d2);
-                    }
-                }
                 else
                 {
-                    if (d2 == 0)
-                    {
-                        indicesNoPrometedores.Add(i);
-                    }
-                    else if (d2 != 0 && d1 != 0)
+                    if (d1 != 0)
                     {
                         indicesPrometedores.Add(i);
                         cantPrometedores.Add(d2);
@@ -438,32 +434,28 @@ namespace ConsoleApp1
             {
                 int d1 = metahistogram[i];
                 int d2 = generatedhistogram[i];
-                double suma = Math.Pow(Math.Abs(d1 * d1 - d2 * d2), 2);
+                double suma;
+                suma = Math.Pow(((d1 + d1) / (d2 + d1 + 1)) - ((d2 + d1) / (d1 + d2 + 1)), 2);
                 //Console.WriteLine(suma);
                 //Console.WriteLine("suma");
                 distancia += suma;
-                if (suma == 0)
+                if (suma < 2)
                 {
                     if (d1 != 0)
                     {
                         indicesPrometedores.Add(i);
+                        if (d2 == 2)
+                        {
+                            cantPrometedores.Add(d2 - 1);
+                        }
+                        else
+                        {
                         cantPrometedores.Add(d2);
-                    }
-                }
-                else
-                {
-                    if (d2 == 0)
-                    {
-                        indicesNoPrometedores.Add(i);
-                    }
-                    else if (d2 != 0 && d1 != 0)
-                    {
-                        indicesPrometedores.Add(i);
-                        cantPrometedores.Add(d2);
+                        }
                     }
                 }
             }
-            Console.WriteLine("Distancia:");
+            Console.WriteLine("DistanciaI:");
             Console.WriteLine(distancia);
         }
 
